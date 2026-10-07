@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>cz.cdcargo</groupId>
+    <artifactId>java-scaffold</artifactId>
+    <version>1.0.0</version>
+    <name>Java Scaffold</name>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>core-application</module>
+        <module>core-domain</module>
+        <module>core-platform</module>
+        <module>infra-db-inmemory</module>
+        <module>infra-db-duckdb</module>   
+        <module>infra-db-sqlite</module>        
+        <module>shell-ui-webapp</module>
+    </modules>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>        
+        <project.build.timestamp>${maven.build.timestamp}</project.build.timestamp>
+        <maven.build.timestamp.format>yyMMddHHmm</maven.build.timestamp.format>  
+        <maven.compiler.release>25</maven.compiler.release>
+        <app.slug>java-scaffold</app.slug>
+        <app.env.prefix>JAVA_SCAFFOLD</app.env.prefix>
+
+        <clean.plugin.version> 3.5.0</clean.plugin.version>
+        <compiler.plugin.version>3.14.1</compiler.plugin.version>
+        <deploy.plugin.version> 3.1.4</deploy.plugin.version>
+        <failsafe.plugin.version>3.5.4</failsafe.plugin.version>
+        <install.plugin.version> 3.1.4</install.plugin.version>
+        <resources.plugin.version>3.3.1</resources.plugin.version>
+        <site.plugin.version> 3.21.0</site.plugin.version>
+        <surefire.plugin.version>3.5.4</surefire.plugin.version>
+        <verifier.plugin.version> 1.1</verifier.plugin.version>
+        <jar.plugin.version>3.5.0</jar.plugin.version>
+        <javadoc.plugin.version> 3.12.0</javadoc.plugin.version>
+        <dependency.plugin.version> 3.9.0</dependency.plugin.version>        
+        <versions.plugin.version>2.19.1</versions.plugin.version>
+        <exec.plugin.version>3.6.2</exec.plugin.version>
+        <graalvm.plugin.version>0.11.3</graalvm.plugin.version>
+        <download.plugin.version>2.1.0</download.plugin.version>
+        <frontend.plugin.version>2.0.0</frontend.plugin.version>
+    </properties>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <!-- core plugins -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-clean-plugin</artifactId>
+                    <version>${clean.plugin.version}</version>
+                    <configuration>
+                        <force>true</force>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${compiler.plugin.version}</version>
+                    <configuration>
+                        <parameters>true</parameters>
+                        <compilerArgs>
+                            <arg>-proc:full</arg>
+                        </compilerArgs>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>${deploy.plugin.version}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>${failsafe.plugin.version}</version>   
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>integration-test</goal>
+                                <goal>verify</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <includes>
+                            <include>**/*IT.java</include>
+                        </includes>
+                    </configuration>                                    
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>${install.plugin.version}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>${resources.plugin.version}</version>
+                    <configuration>
+                        <propertiesEncoding>UTF-8</propertiesEncoding>
+                        <nonFilteredFileExtensions>                            
+                            <nonFilteredFileExtension>dll</nonFilteredFileExtension>
+                            <nonFilteredFileExtension>dylib</nonFilteredFileExtension>
+                            <nonFilteredFileExtension>so</nonFilteredFileExtension>
+                            <nonFilteredFileExtension>zip</nonFilteredFileExtension>
+                            <nonFilteredFileExtension>woff</nonFilteredFileExtension>
+                            <nonFilteredFileExtension>woff2</nonFilteredFileExtension>
+                        </nonFilteredFileExtensions>
+                    </configuration>                 
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>${site.plugin.version}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${surefire.plugin.version}</version>
+                    <configuration>
+                        <argLine>--enable-native-access=ALL-UNNAMED</argLine>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-verifier-plugin</artifactId>
+                    <version>${verifier.plugin.version}</version>
+                </plugin>
+
+                <!-- packaging plugins -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>${jar.plugin.version}</version>                    
+                </plugin>
+
+                <!-- reporting plugins -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>${javadoc.plugin.version}</version>
+                    <configuration>
+                        <doclint>all,-missing</doclint>
+                        <failOnError>false</failOnError>
+                    </configuration>
+                </plugin>
+
+                <!-- tools plugins -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>${dependency.plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>copy-dependencies</goal>
+                            </goals>
+                            <configuration>
+                                <includeScope>runtime</includeScope>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <!-- other plugins -->
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>versions-maven-plugin</artifactId>
+                    <version>${versions.plugin.version}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <version>${exec.plugin.version}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.graalvm.buildtools</groupId>
+                    <artifactId>native-maven-plugin</artifactId>
+                    <version>${graalvm.plugin.version}</version>
+                    <extensions>true</extensions>
+                </plugin>
+
+                <plugin>
+                    <groupId>io.github.download-maven-plugin</groupId>
+                    <artifactId>download-maven-plugin</artifactId>
+                    <version>${download.plugin.version}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>com.github.eirslett</groupId>
+                    <artifactId>frontend-maven-plugin</artifactId>
+                    <version>${frontend.plugin.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+        <resources>
+            <!-- resource filtering -->
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <excludes>                 
+                    <exclude>**/*.xcf</exclude>
+                </excludes>
+            </resource>
+        </resources>
+    </build>
+
+    <repositories>
+        <repository>
+            <id>martmists-snap</id>
+            <url>https://maven.martmists.com/snapshots/</url>
+        </repository>
+    </repositories>
+</project>

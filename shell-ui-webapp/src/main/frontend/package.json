@@ -1,0 +1,26 @@
+{
+    "name": "java-hello",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "type-check": "tsc --noEmit",
+        "build": "vite build",
+        "preview": "vite preview"
+    },
+    "dependencies": {
+        "vue": "3.5.39",
+        "vue-router": "5.1.0",
+        "@ui5/webcomponents": "2.23.2",
+        "@ui5/webcomponents-base": "2.23.2",
+        "@ui5/webcomponents-fiori": "2.23.2",
+        "@ui5/webcomponents-icons": "2.23.2",
+        "@ui5/webcomponents-localization": "2.23.2",
+        "@ui5/webcomponents-theming": "2.23.2"
+    },
+    "devDependencies": {
+        "typescript": "6.0.3",
+        "vite": "8.1.0",
+        "@vitejs/plugin-vue": "6.0.7"
+    }
+}

@@ -1,0 +1,37 @@
+{
+    "compilerOptions": {
+        "target": "ES2022",      
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "verbatimModuleSyntax": true,
+        "lib": [
+            "ES2022",
+            "DOM",
+            "DOM.Iterable"
+        ],
+        "strict": true,
+        "noImplicitOverride": true,
+        "noUncheckedIndexedAccess": true,
+        "exactOptionalPropertyTypes": false,
+        "skipLibCheck": true,
+        "isolatedModules": true,
+        "experimentalDecorators": true,      
+        "jsx": "react-jsx",
+        "jsxImportSource": "@ui5/webcomponents-base",
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
+        "resolveJsonModule": false,
+        "types": [
+            "vite/client"
+        ],
+        "noEmit": true
+    },
+    "include": [
+        "src/main.ts",
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "src/**/*.d.ts",
+        "src/**/*.json",
+        "src/**/*.vue"
+    ]
+}
