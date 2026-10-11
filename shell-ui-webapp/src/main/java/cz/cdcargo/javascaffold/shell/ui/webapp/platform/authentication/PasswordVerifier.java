@@ -4,5 +4,4 @@ package cz.cdcargo.javascaffold.shell.ui.webapp.platform.authentication;
 public interface PasswordVerifier {
 
     boolean matches(String password, String passwordHash);
-
 }
