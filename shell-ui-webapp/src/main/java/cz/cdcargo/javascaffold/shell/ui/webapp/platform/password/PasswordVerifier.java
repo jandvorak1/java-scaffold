@@ -1,4 +1,4 @@
-package cz.cdcargo.javascaffold.shell.ui.webapp.platform.authentication;
+package cz.cdcargo.javascaffold.shell.ui.webapp.platform.password;
 
 @FunctionalInterface
 public interface PasswordVerifier {
