@@ -10,6 +10,6 @@ class MessageTitleBlankExceptionTest {
     void testConstructorSetsDiagnosticMessage() {
         var exception = new MessageTitleBlankException();
 
-        assertEquals("Message title must not be blank", exception.getMessage());
+        assertEquals("Value must not be blank", exception.getMessage());
     }
 }

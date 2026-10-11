@@ -16,6 +16,6 @@ public final class MessageTitleBlankException extends AbstractBusinessException 
      * Creates an exception describing a blank message title.
      */
     public MessageTitleBlankException() {
-        super("Message title must not be blank");
+        super("Value must not be blank");
     }
 }

@@ -37,8 +37,8 @@ public final class MessageTitleLengthException extends AbstractBusinessException
 
     private static String createMessage(int maxLength) {
         if (maxLength < 0) {
-            throw new IllegalArgumentException("Max length must not be negative");
+            throw new IllegalArgumentException("Maximum length must not be negative");
         }
-        return "Message title length must not exceed " + maxLength;
+        return "Maximum length must not exceed " + maxLength;
     }
 }

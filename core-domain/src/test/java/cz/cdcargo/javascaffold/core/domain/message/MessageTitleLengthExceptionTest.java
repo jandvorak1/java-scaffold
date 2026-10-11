@@ -19,7 +19,7 @@ class MessageTitleLengthExceptionTest {
     void testConstructorSetsDiagnosticMessage() {
         var exception = new MessageTitleLengthException(10);
 
-        assertEquals("Message title length must not exceed 10", exception.getMessage());
+        assertEquals("Maximum length must not exceed 10", exception.getMessage());
     }
 
     @Test
@@ -34,6 +34,6 @@ class MessageTitleLengthExceptionTest {
         var exception = assertThrows(IllegalArgumentException.class,
                 () -> new MessageTitleLengthException(-1));
 
-        assertEquals("Max length must not be negative", exception.getMessage());
+        assertEquals("Maximum length must not be negative", exception.getMessage());
     }
 }
