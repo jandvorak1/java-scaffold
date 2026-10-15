@@ -3,25 +3,25 @@ package cz.cdcargo.javascaffold.core.domain.message;
 import java.util.Objects;
 
 /**
- * Represents an immutable, non-blank message title.
+ * Immutable non-blank title of a message.
  *
- * A title contains at most 255 Unicode code points. Its supplied text is
- * preserved without modification.
+ * The value contains no more than 255 Unicode code points and is retained
+ * without modification.
  *
- * @param value validated message title
+ * @param value title text
  */
 public record MessageTitle(String value) {
 
     private static final int MAX_LENGTH = 255;
 
     /**
-     * Creates a validated message title.
+     * Creates a message title after validating value.
      *
-     * @param value message title
+     * @param value title text
      * @throws NullPointerException        if value is null
      * @throws MessageTitleBlankException  if value is blank
-     * @throws MessageTitleLengthException if value exceeds 255 Unicode code
-     *                                     points
+     * @throws MessageTitleLengthException if value contains more than 255 Unicode
+     *                                     code points
      */
     public MessageTitle {
         Objects.requireNonNull(value, "Value must not be null");

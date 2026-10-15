@@ -5,7 +5,7 @@ import java.io.Serial;
 import cz.cdcargo.javascaffold.core.platform.exception.AbstractBusinessException;
 
 /**
- * Signals that a message title is blank.
+ * Business exception thrown when a message title is blank.
  */
 public final class MessageTitleBlankException extends AbstractBusinessException {
 
@@ -13,7 +13,7 @@ public final class MessageTitleBlankException extends AbstractBusinessException 
     private static final long serialVersionUID = 1L;
 
     /**
-     * Creates an exception describing a blank message title.
+     * Creates an exception for a blank message title.
      */
     public MessageTitleBlankException() {
         super("Value must not be blank");

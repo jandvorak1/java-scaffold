@@ -10,17 +10,18 @@ import org.junit.jupiter.api.Test;
 class MessageIDTest {
 
     @Test
-    void testConstructorStoresValue() {
-        var value = UUID.fromString("948becc5-322f-4eaf-bb20-4ffce6637e0f");
-        var messageId = new MessageID(value);
+    void testConstructor() {
+        // Arrange
+        var value = UUID.randomUUID();
 
-        assertEquals(value, messageId.value());
+        // Act + Assert
+        assertEquals(value, new MessageID(value).value());
     }
 
     @Test
-    void testConstructorRejectsNullValue() {
-        var exception = assertThrows(NullPointerException.class, () -> new MessageID(null));
-
-        assertEquals("Value must not be null", exception.getMessage());
+    void testConstructorNullValue() {
+        // Arrange + Act + Assert
+        assertEquals("Value must not be null",
+                assertThrows(NullPointerException.class, () -> new MessageID(null)).getMessage());
     }
 }

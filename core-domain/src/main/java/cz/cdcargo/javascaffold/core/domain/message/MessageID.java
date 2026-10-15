@@ -4,16 +4,16 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * Represents the immutable UUID identity of a message.
+ * Immutable UUID value object that identifies a message.
  *
- * @param value UUID that uniquely identifies the message
+ * @param value UUID identifier of the message
  */
 public record MessageID(UUID value) {
 
     /**
-     * Creates a message identifier from a UUID.
+     * Creates a message identifier from value.
      *
-     * @param value UUID that uniquely identifies the message
+     * @param value UUID identifier of the message
      * @throws NullPointerException if value is null
      */
     public MessageID {

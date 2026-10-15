@@ -5,8 +5,7 @@ import java.io.Serial;
 import cz.cdcargo.javascaffold.core.platform.exception.AbstractBusinessException;
 
 /**
- * Signals that a message title exceeds its maximum number of Unicode code
- * points.
+ * Business exception thrown when a message title exceeds its permitted length.
  */
 public final class MessageTitleLengthException extends AbstractBusinessException {
 
@@ -16,29 +15,25 @@ public final class MessageTitleLengthException extends AbstractBusinessException
     private final int maxLength;
 
     /**
-     * Creates an exception describing a title that exceeds its length limit.
+     * Creates an exception for a title longer than maxLength Unicode code points.
      *
-     * @param maxLength maximum permitted number of Unicode code points
+     * @param maxLength permitted maximum number of Unicode code points
      * @throws IllegalArgumentException if maxLength is negative
      */
     public MessageTitleLengthException(int maxLength) {
-        super(createMessage(maxLength));
+        super("Maximum length must not exceed " + maxLength + " characters");
+        if (maxLength < 0) {
+            throw new IllegalArgumentException("Maximum length must not be negative");
+        }
         this.maxLength = maxLength;
     }
 
     /**
-     * Returns the maximum title length that was exceeded.
+     * Returns the permitted maximum number of Unicode code points.
      *
-     * @return maximum permitted number of Unicode code points
+     * @return permitted title length
      */
     public int maxLength() {
         return maxLength;
-    }
-
-    private static String createMessage(int maxLength) {
-        if (maxLength < 0) {
-            throw new IllegalArgumentException("Maximum length must not be negative");
-        }
-        return "Maximum length must not exceed " + maxLength;
     }
 }

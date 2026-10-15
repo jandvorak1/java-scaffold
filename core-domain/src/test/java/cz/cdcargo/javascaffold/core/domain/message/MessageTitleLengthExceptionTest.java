@@ -8,32 +8,29 @@ import org.junit.jupiter.api.Test;
 class MessageTitleLengthExceptionTest {
 
     @Test
-    void testConstructorStoresMaximumLength() {
-        var maxLength = 10;
-        var exception = new MessageTitleLengthException(maxLength);
+    void testConstructor() {
+        // Arrange + Act
+        var exception = new MessageTitleLengthException(255);
 
-        assertEquals(maxLength, exception.maxLength());
+        // Assert
+        assertEquals(255, exception.maxLength());
+        assertEquals("Maximum length must not exceed 255 characters", exception.getMessage());
     }
 
     @Test
-    void testConstructorSetsDiagnosticMessage() {
-        var exception = new MessageTitleLengthException(10);
-
-        assertEquals("Maximum length must not exceed 10", exception.getMessage());
-    }
-
-    @Test
-    void testConstructorAcceptsZeroMaximumLength() {
+    void testConstructorZeroMaxLength() {
+        // Arrange + Act
         var exception = new MessageTitleLengthException(0);
 
+        // Assert
         assertEquals(0, exception.maxLength());
+        assertEquals("Maximum length must not exceed 0 characters", exception.getMessage());
     }
 
     @Test
-    void testConstructorRejectsNegativeMaximumLength() {
-        var exception = assertThrows(IllegalArgumentException.class,
-                () -> new MessageTitleLengthException(-1));
-
-        assertEquals("Maximum length must not be negative", exception.getMessage());
+    void testConstructorNegativeMaxLength() {
+        // Arrange + Act + Assert
+        assertEquals("Maximum length must not be negative", assertThrows(IllegalArgumentException.class,
+                () -> new MessageTitleLengthException(-1)).getMessage());
     }
 }
