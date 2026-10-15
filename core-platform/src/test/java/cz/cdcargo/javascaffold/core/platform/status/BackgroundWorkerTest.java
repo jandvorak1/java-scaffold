@@ -19,6 +19,7 @@ class BackgroundWorkerTest {
 
     @Test
     void testExecute() throws Exception {
+        // Arrange
         var doneLatch = new CountDownLatch(1);
         var resultRef = new AtomicReference<String>();
         var worker = new BackgroundWorker<String, String>("test-token") {
@@ -34,7 +35,11 @@ class BackgroundWorkerTest {
                 doneLatch.countDown();
             }
         };
+
+        // Act
         worker.execute();
+
+        // Assert
         assertTrue(doneLatch.await(2, TimeUnit.SECONDS));
         assertEquals("done", resultRef.get());
         assertEquals(BackgroundWorkerState.DONE, worker.state());
@@ -42,15 +47,19 @@ class BackgroundWorkerTest {
 
     @Test
     void testExecuteRejectsSecondInvocation() {
+        // Arrange
         var worker = new NoOpWorker("test-token");
 
+        // Act
         worker.execute();
 
+        // Assert
         assertThrows(IllegalStateException.class, worker::execute);
     }
 
     @Test
     void testExecuteRecordsFailure() throws Exception {
+        // Arrange
         var failedLatch = new CountDownLatch(1);
         var failure = new IllegalStateException("Failure");
         var worker = new BackgroundWorker<Void, String>("test-token") {
@@ -66,8 +75,10 @@ class BackgroundWorkerTest {
             }
         };
 
+        // Act
         worker.execute();
 
+        // Assert
         assertTrue(failedLatch.await(2, TimeUnit.SECONDS));
         var snapshot = worker.snapshot(0);
         assertEquals(BackgroundWorkerState.FAILED, snapshot.state());
@@ -78,6 +89,7 @@ class BackgroundWorkerTest {
 
     @Test
     void testCancel() throws Exception {
+        // Arrange
         var startedLatch = new CountDownLatch(1);
         var cancelledLatch = new CountDownLatch(1);
         var worker = new BackgroundWorker<Void, String>("test-token") {
@@ -94,7 +106,11 @@ class BackgroundWorkerTest {
                 cancelledLatch.countDown();
             }
         };
+
+        // Act
         worker.execute();
+
+        // Assert
         assertTrue(startedLatch.await(2, TimeUnit.SECONDS));
         worker.cancel();
         assertTrue(cancelledLatch.await(2, TimeUnit.SECONDS));
@@ -103,6 +119,7 @@ class BackgroundWorkerTest {
 
     @Test
     void testCancelInvokesCallbacksInOrder() throws Exception {
+        // Arrange
         var startedLatch = new CountDownLatch(1);
         var callbacks = new ArrayList<String>();
         var worker = new BackgroundWorker<Void, String>("test-token") {
@@ -124,17 +141,19 @@ class BackgroundWorkerTest {
                 callbacks.add("cancelled");
             }
         };
+
+        // Act
         worker.execute();
 
+        // Assert
         assertTrue(startedLatch.await(2, TimeUnit.SECONDS));
-
         worker.cancel();
-
         assertEquals(List.of("requested", "cancelled"), callbacks);
     }
 
     @Test
     void testFinished() throws Exception {
+        // Arrange
         var doneLatch = new CountDownLatch(1);
         var worker = new BackgroundWorker<Void, String>("test-token") {
 
@@ -148,13 +167,18 @@ class BackgroundWorkerTest {
                 doneLatch.countDown();
             }
         };
+
+        // Act
         worker.execute();
+
+        // Assert
         assertTrue(doneLatch.await(2, TimeUnit.SECONDS));
         assertTrue(worker.finished());
     }
 
     @Test
     void testRunning() throws Exception {
+        // Arrange
         var startedLatch = new CountDownLatch(1);
         var worker = new BackgroundWorker<Void, String>("test-token") {
 
@@ -165,7 +189,11 @@ class BackgroundWorkerTest {
                 return null;
             }
         };
+
+        // Act
         worker.execute();
+
+        // Assert
         assertTrue(startedLatch.await(2, TimeUnit.SECONDS));
         assertTrue(worker.running());
         worker.cancel();
@@ -173,6 +201,7 @@ class BackgroundWorkerTest {
 
     @Test
     void testSnapshot() throws Exception {
+        // Arrange
         var doneLatch = new CountDownLatch(1);
         var worker = new BackgroundWorker<Void, String>("test-token") {
 
@@ -188,10 +217,13 @@ class BackgroundWorkerTest {
                 doneLatch.countDown();
             }
         };
+
+        // Act
         worker.execute();
+
+        // Assert
         assertTrue(doneLatch.await(2, TimeUnit.SECONDS));
         var snapshot = worker.snapshot(1);
-
         assertEquals("test-token", snapshot.token());
         assertEquals(BackgroundWorkerState.DONE, snapshot.state());
         assertNotNull(snapshot.createdAt());
@@ -202,6 +234,7 @@ class BackgroundWorkerTest {
 
     @Test
     void testPublishForwardsImmutableBatch() throws Exception {
+        // Arrange
         var doneLatch = new CountDownLatch(1);
         var processedMessages = new AtomicReference<List<String>>();
         var worker = new BackgroundWorker<Void, String>("test-token") {
@@ -222,8 +255,11 @@ class BackgroundWorkerTest {
                 doneLatch.countDown();
             }
         };
+
+        // Act
         worker.execute();
 
+        // Assert
         assertTrue(doneLatch.await(2, TimeUnit.SECONDS));
         assertEquals(List.of("first", "second"), processedMessages.get());
         assertThrows(UnsupportedOperationException.class, () -> processedMessages.get().add("third"));
@@ -231,30 +267,40 @@ class BackgroundWorkerTest {
 
     @Test
     void testSnapshotRejectsNegativeOffset() {
+        // Arrange
         var worker = new NoOpWorker("test-token");
 
+        // Act & Assert
         assertThrows(IllegalArgumentException.class, () -> worker.snapshot(-1));
     }
 
     @Test
     void testConstructorRejectsMissingToken() {
+        // Arrange + Act + Assert
         assertThrows(NullPointerException.class, () -> new NoOpWorker(null));
     }
 
     @Test
     void testConstructorRejectsBlankToken() {
+        // Arrange + Act + Assert
         assertThrows(IllegalArgumentException.class, () -> new NoOpWorker(" \t"));
     }
 
     @Test
     void testState() {
+        // Arrange
         var worker = new NoOpWorker("test-token");
+
+        // Act + Assert
         assertEquals(BackgroundWorkerState.READY, worker.state());
     }
 
     @Test
     void testToken() {
+        // Arrange
         var worker = new NoOpWorker("test-token");
+
+        // Act + Assert
         assertEquals("test-token", worker.token());
     }
 

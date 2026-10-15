@@ -26,35 +26,44 @@ class CancellationTokenTest {
 
     @Test
     void testRegister() {
+        // Arrange + Act
         CancellationToken.register(new CancellationToken());
+
+        // Assert
         assertDoesNotThrow(CancellationToken::throwIfCancelled);
     }
 
     @Test
     void testRegisterRejectsNullToken() {
+        // Arrange + Act + Assert
         assertThrows(NullPointerException.class, () -> CancellationToken.register(null));
     }
 
     @Test
     void testCancel() {
+        // Arrange + Act
         var token = new CancellationToken();
         CancellationToken.register(token);
         token.cancel();
+
+        // Assert
         assertThrows(CancellationException.class, CancellationToken::throwIfCancelled);
     }
 
     @Test
     void testIsCancelledReflectsCancellationRequest() {
+        // Arrange
         var token = new CancellationToken();
 
+        // Act + Assert
         assertFalse(token.isCancelled());
         token.cancel();
-
         assertTrue(token.isCancelled());
     }
 
     @Test
     void testCancelIsolated() throws InterruptedException {
+        // Arrange
         var token = new CancellationToken();
         CancellationToken.register(token);
         token.cancel();
@@ -66,18 +75,26 @@ class CancellationTokenTest {
                 threwInOtherThread.set(true);
             }
         });
+
+        // Act
         other.join();
+
+        // Assert
         assertFalse(threwInOtherThread.get());
     }
 
     @Test
     void testThrowIfCancelled() {
+        // Arrange + Act + Assert
         assertDoesNotThrow(CancellationToken::throwIfCancelled);
     }
 
     @Test
     void testClear() {
+        // Arrange
         var token = new CancellationToken();
+
+        // Act + Assert
         CancellationToken.register(token);
         token.cancel();
         CancellationToken.clear();

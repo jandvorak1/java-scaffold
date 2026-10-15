@@ -10,34 +10,46 @@ class AbstractBusinessExceptionTest {
 
     @Test
     void testConstructorWithoutArguments() {
+        // Arrange + Act
         var exception = new TestBusinessException();
 
+        // Assert
         assertNull(exception.getMessage());
         assertNull(exception.getCause());
     }
 
     @Test
     void testConstructorWithMessage() {
+        // Arrange + Act
         var exception = new TestBusinessException("Business rule violated");
 
+        // Assert
         assertEquals("Business rule violated", exception.getMessage());
         assertNull(exception.getCause());
     }
 
     @Test
     void testConstructorWithCause() {
+        // Arrange
         var cause = new IllegalStateException("Invalid state");
+
+        // Act
         var exception = new TestBusinessException(cause);
 
+        // Assert
         assertEquals(cause.toString(), exception.getMessage());
         assertSame(cause, exception.getCause());
     }
 
     @Test
     void testConstructorWithMessageAndCause() {
+        // Arrange
         var cause = new IllegalStateException("Invalid state");
+
+        // Act
         var exception = new TestBusinessException("Business rule violated", cause);
 
+        // Assert
         assertEquals("Business rule violated", exception.getMessage());
         assertSame(cause, exception.getCause());
     }

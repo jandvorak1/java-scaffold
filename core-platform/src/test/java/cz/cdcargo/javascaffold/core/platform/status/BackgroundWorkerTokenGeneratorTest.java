@@ -13,10 +13,12 @@ class BackgroundWorkerTokenGeneratorTest {
 
     @Test
     void testGenerateReturnsDistinctUrlSafeTokens() {
+        // Arrange
         var token = BackgroundWorkerTokenGenerator.generate();
         var anotherToken = BackgroundWorkerTokenGenerator.generate();
-        var decoded = assertDoesNotThrow(() -> Base64.getUrlDecoder().decode(token));
 
+        // Act + Assert
+        var decoded = assertDoesNotThrow(() -> Base64.getUrlDecoder().decode(token));
         assertFalse(token.isBlank());
         assertEquals(43, token.length());
         assertEquals(32, decoded.length);

@@ -11,6 +11,7 @@ class LogLevelsTest {
 
     @Test
     void testParseMapsApplicationAliases() {
+        // Arrange + Act + Assert
         assertEquals(Level.SEVERE, LogLevels.parse("ERROR", Level.INFO));
         assertEquals(Level.WARNING, LogLevels.parse("WARN", Level.INFO));
         assertEquals(Level.WARNING, LogLevels.parse("WARNING", Level.INFO));
@@ -20,6 +21,7 @@ class LogLevelsTest {
 
     @Test
     void testParseMapsStandardJavaLevels() {
+        // Arrange + Act + Assert
         assertEquals(Level.OFF, LogLevels.parse("OFF", Level.INFO));
         assertEquals(Level.SEVERE, LogLevels.parse("SEVERE", Level.INFO));
         assertEquals(Level.INFO, LogLevels.parse("INFO", Level.WARNING));
@@ -32,16 +34,19 @@ class LogLevelsTest {
 
     @Test
     void testParseMapsNumericJavaLevel() {
+        // Arrange + Act + Assert
         assertEquals(Level.INFO, LogLevels.parse("800", Level.WARNING));
     }
 
     @Test
     void testParseIgnoresWhitespaceAndLetterCase() {
+        // Arrange + Act + Assert
         assertEquals(Level.WARNING, LogLevels.parse("  wArN  ", Level.INFO));
     }
 
     @Test
     void testParseReturnsDefaultForMissingOrUnknownValue() {
+        // Arrange + Act + Assert
         assertEquals(Level.CONFIG, LogLevels.parse(null, Level.CONFIG));
         assertEquals(Level.CONFIG, LogLevels.parse(" \t", Level.CONFIG));
         assertEquals(Level.CONFIG, LogLevels.parse("unknown", Level.CONFIG));
@@ -49,6 +54,7 @@ class LogLevelsTest {
 
     @Test
     void testParseRejectsNullDefaultLevel() {
+        // Arrange + Act + Assert
         assertThrows(NullPointerException.class, () -> LogLevels.parse("INFO", null));
     }
 }

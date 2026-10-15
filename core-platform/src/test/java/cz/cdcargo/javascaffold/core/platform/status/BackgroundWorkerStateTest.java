@@ -9,6 +9,7 @@ class BackgroundWorkerStateTest {
 
     @Test
     void testIsTerminalIdentifiesLifecycleEndStates() {
+        // Arrange + Act + Assert
         assertFalse(BackgroundWorkerState.READY.isTerminal());
         assertFalse(BackgroundWorkerState.RUNNING.isTerminal());
         assertTrue(BackgroundWorkerState.DONE.isTerminal());
