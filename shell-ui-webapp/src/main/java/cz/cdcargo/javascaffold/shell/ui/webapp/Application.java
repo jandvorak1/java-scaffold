@@ -19,6 +19,9 @@ import cz.cdcargo.javascaffold.core.platform.status.BackgroundWorkerRegistry;
 import cz.cdcargo.javascaffold.shell.ui.webapp.bootstrap.MessageBootstrap;
 import cz.cdcargo.javascaffold.shell.ui.webapp.endpoint.message.GenerateGreetingMessageEndpoint;
 import cz.cdcargo.javascaffold.shell.ui.webapp.endpoint.message.ReadAllMessageEndpoint;
+import cz.cdcargo.javascaffold.shell.ui.webapp.endpoint.system.auth.LoginEndpoint;
+import cz.cdcargo.javascaffold.shell.ui.webapp.endpoint.system.auth.LogoutEndpoint;
+import cz.cdcargo.javascaffold.shell.ui.webapp.endpoint.system.auth.SessionEndpoint;
 import cz.cdcargo.javascaffold.shell.ui.webapp.endpoint.system.errors.AuthenticationErrorHandler;
 import cz.cdcargo.javascaffold.shell.ui.webapp.endpoint.system.errors.AuthorizationErrorHandler;
 import cz.cdcargo.javascaffold.shell.ui.webapp.endpoint.system.errors.BusinessErrorHandler;
@@ -113,6 +116,9 @@ public final class Application {
         var readAllMessageEndpoint = new ReadAllMessageEndpoint(identity, security,
                 messageBootstrap.buildReadAllMessageUseCase(), writer, registry);
 
+        var loginEndpoint = new LoginEndpoint(writer);
+        var logoutEndpoint = new LogoutEndpoint(writer);
+        var sessionEndpoint = new SessionEndpoint(writer);
         var loadDateFormatEndpoint = new LoadDateFormatEndpoint(preferences, writer);
         var loadDateTimeFormatEndpoint = new LoadDateTimeFormatEndpoint(preferences, writer);
         var loadDecimalFormatEndpoint = new LoadDecimalFormatEndpoint(preferences, writer);
@@ -144,6 +150,9 @@ public final class Application {
                         .post("/api/message/greeting", generateGreetingMessageEndpoint::execute)
                         .post("/api/message/read", readAllMessageEndpoint::execute)
 
+                        .post("/api/system/auth/login", loginEndpoint::execute)
+                        .post("/api/system/auth/logout", logoutEndpoint::execute)
+                        .get("/api/system/auth/session", sessionEndpoint::execute)
                         .get("/api/system/formats/date", loadDateFormatEndpoint::execute)
                         .get("/api/system/formats/datetime", loadDateTimeFormatEndpoint::execute)
                         .get("/api/system/formats/decimal", loadDecimalFormatEndpoint::execute)
