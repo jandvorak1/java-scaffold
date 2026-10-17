@@ -5,6 +5,8 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.URI;
+import java.time.Clock;
+import java.time.Duration;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.logging.Level;
@@ -42,6 +44,7 @@ import cz.cdcargo.javascaffold.shell.ui.webapp.endpoint.webtray.ShutdownEndpoint
 import cz.cdcargo.javascaffold.shell.ui.webapp.endpoint.webtray.StatusEndpoint;
 import cz.cdcargo.javascaffold.shell.ui.webapp.page.favicon.FaviconEndpoint;
 import cz.cdcargo.javascaffold.shell.ui.webapp.page.home.HomePageEndpoint;
+import cz.cdcargo.javascaffold.shell.ui.webapp.platform.account.InMemoryUserAccountStore;
 import cz.cdcargo.javascaffold.shell.ui.webapp.platform.desktop.DesktopTray;
 import cz.cdcargo.javascaffold.shell.ui.webapp.platform.exception.AuthenticationException;
 import cz.cdcargo.javascaffold.shell.ui.webapp.platform.exception.AuthorizationException;
@@ -50,8 +53,15 @@ import cz.cdcargo.javascaffold.shell.ui.webapp.platform.http.ResponseWriter;
 import cz.cdcargo.javascaffold.shell.ui.webapp.platform.i18n.Locales;
 import cz.cdcargo.javascaffold.shell.ui.webapp.platform.i18n.Messages;
 import cz.cdcargo.javascaffold.shell.ui.webapp.platform.identity.LocalIdentity;
+import cz.cdcargo.javascaffold.shell.ui.webapp.platform.password.Argon2PasswordVerifier;
+import cz.cdcargo.javascaffold.shell.ui.webapp.platform.password.InMemoryPasswordCredentialStore;
+import cz.cdcargo.javascaffold.shell.ui.webapp.platform.password.PasswordAuthenticator;
 import cz.cdcargo.javascaffold.shell.ui.webapp.platform.security.WebCors;
 import cz.cdcargo.javascaffold.shell.ui.webapp.platform.security.WebSecurity;
+import cz.cdcargo.javascaffold.shell.ui.webapp.platform.session.SessionCookie;
+import cz.cdcargo.javascaffold.shell.ui.webapp.platform.session.SessionManager;
+import cz.cdcargo.javascaffold.shell.ui.webapp.platform.token.AccessTokenService;
+import cz.cdcargo.javascaffold.shell.ui.webapp.platform.token.InMemoryAccessTokenStore;
 import gg.jte.ContentType;
 import gg.jte.TemplateEngine;
 import io.helidon.http.HttpException;
@@ -108,6 +118,16 @@ public final class Application {
         var errorWriter = new ErrorResponseWriter(writer);
         var messages = new Messages(Locales.resolve(locale));
 
+        var accountStore = new InMemoryUserAccountStore();
+        var credentialStore = new InMemoryPasswordCredentialStore();
+        var tokenStore = new InMemoryAccessTokenStore();
+        var token = new AccessTokenService(tokenStore, Clock.systemUTC(), Duration.ofMinutes(20),
+                Duration.ofMinutes(5));
+        var cookie = new SessionCookie("JAVA_SCAFFOLD_SESSIONID", true);
+        var session = new SessionManager(token, cookie, null);
+        var verifier = new Argon2PasswordVerifier();
+        var authenticator = new PasswordAuthenticator(accountStore, credentialStore, verifier);
+
         checkExistingInstance(host, port, timeout, messages);
 
         var messageBootstrap = new MessageBootstrap(preferences);
@@ -116,9 +136,9 @@ public final class Application {
         var readAllMessageEndpoint = new ReadAllMessageEndpoint(identity, security,
                 messageBootstrap.buildReadAllMessageUseCase(), writer, registry);
 
-        var loginEndpoint = new LoginEndpoint(writer);
-        var logoutEndpoint = new LogoutEndpoint(writer);
-        var sessionEndpoint = new SessionEndpoint(writer);
+        var loginEndpoint = new LoginEndpoint(security, writer, authenticator, session);
+        var logoutEndpoint = new LogoutEndpoint(security, writer);
+        var sessionEndpoint = new SessionEndpoint(security, writer);
         var loadDateFormatEndpoint = new LoadDateFormatEndpoint(preferences, writer);
         var loadDateTimeFormatEndpoint = new LoadDateTimeFormatEndpoint(preferences, writer);
         var loadDecimalFormatEndpoint = new LoadDecimalFormatEndpoint(preferences, writer);
