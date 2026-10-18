@@ -6,4 +6,6 @@ public interface UserAccountStore {
 
     Optional<UserAccount> findByEmail(String email);
 
+    Optional<UserAccount> findBySubject(String subject);
+
 }

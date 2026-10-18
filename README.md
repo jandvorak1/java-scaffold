@@ -48,7 +48,6 @@ Application configuration properties, their default values, and descriptions.
 | `logs.file.path` | `$HOME/Library/Logs/java-scaffold` | Log file path; when unset, the platform default is used (MacOS). |
 | `server.host` | `localhost` | HTTP server host name or bind address. |
 | `server.port` | 3000 | HTTP server port. |
-| `server.timeout` | 5000 | Server timeout in milliseconds. |
 | `server.origins.allowed` | null | Additional origins allowed to access the server. |
 | `server.origins.same` | `http://localhost:3000` | Origin treated as the application's same origin. |
 | `settings.locale` | `cs_CZ` | Application locale used for localization and formatting. |

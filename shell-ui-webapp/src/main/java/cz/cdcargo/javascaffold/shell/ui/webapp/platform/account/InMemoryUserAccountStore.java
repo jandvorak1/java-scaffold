@@ -38,6 +38,17 @@ public final class InMemoryUserAccountStore implements UserAccountStore {
         return Optional.ofNullable(accounts.get(normalizeEmail(email)));
     }
 
+    @Override
+    public Optional<UserAccount> findBySubject(String subject) {
+        Objects.requireNonNull(subject, "Subject must not be null");
+        if (subject.isBlank()) {
+            return Optional.empty();
+        }
+        return accounts.values().stream()
+                .filter(account -> account.subject().equals(subject))
+                .findFirst();
+    }
+
     private static String normalizeEmail(String email) {
         return email.strip().toLowerCase(Locale.ROOT);
     }

@@ -7,7 +7,7 @@ import cz.cdcargo.javascaffold.shell.ui.webapp.platform.security.WebSecurity;
 import io.helidon.webserver.http.ServerRequest;
 import io.helidon.webserver.http.ServerResponse;
 
-public class SessionEndpoint {
+public final class SessionEndpoint {
 
     private final WebSecurity security;
     private final ResponseWriter writer;

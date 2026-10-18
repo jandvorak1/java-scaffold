@@ -1,18 +1,11 @@
 package cz.cdcargo.javascaffold.shell.ui.webapp;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.time.Clock;
 import java.time.Duration;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.swing.JOptionPane;
 
 import cz.cdcargo.javascaffold.core.platform.build.BuildMetadata;
 import cz.cdcargo.javascaffold.core.platform.exception.AbstractBusinessException;
@@ -45,14 +38,12 @@ import cz.cdcargo.javascaffold.shell.ui.webapp.endpoint.webtray.StatusEndpoint;
 import cz.cdcargo.javascaffold.shell.ui.webapp.page.favicon.FaviconEndpoint;
 import cz.cdcargo.javascaffold.shell.ui.webapp.page.home.HomePageEndpoint;
 import cz.cdcargo.javascaffold.shell.ui.webapp.platform.account.InMemoryUserAccountStore;
-import cz.cdcargo.javascaffold.shell.ui.webapp.platform.desktop.DesktopTray;
 import cz.cdcargo.javascaffold.shell.ui.webapp.platform.exception.AuthenticationException;
 import cz.cdcargo.javascaffold.shell.ui.webapp.platform.exception.AuthorizationException;
 import cz.cdcargo.javascaffold.shell.ui.webapp.platform.http.ErrorResponseWriter;
 import cz.cdcargo.javascaffold.shell.ui.webapp.platform.http.ResponseWriter;
-import cz.cdcargo.javascaffold.shell.ui.webapp.platform.i18n.Locales;
-import cz.cdcargo.javascaffold.shell.ui.webapp.platform.i18n.Messages;
-import cz.cdcargo.javascaffold.shell.ui.webapp.platform.identity.LocalIdentity;
+import cz.cdcargo.javascaffold.shell.ui.webapp.platform.identity.SessionCookieIdentity;
+import cz.cdcargo.javascaffold.shell.ui.webapp.platform.password.Argon2PasswordHasher;
 import cz.cdcargo.javascaffold.shell.ui.webapp.platform.password.Argon2PasswordVerifier;
 import cz.cdcargo.javascaffold.shell.ui.webapp.platform.password.InMemoryPasswordCredentialStore;
 import cz.cdcargo.javascaffold.shell.ui.webapp.platform.password.PasswordAuthenticator;
@@ -99,36 +90,31 @@ public final class Application {
                 "server.host");
         var port = preferences.getInt("server.port", 3000, BuildMetadata.envPrefix() + "_SERVER_PORT",
                 "server.port");
-        var timeout = preferences.getInt("server.timeout", 5000, BuildMetadata.envPrefix() + "_SERVER_TIMEOUT",
-                "server.timeout");
         var uri = URI.create("http://" + host + ":" + port);
 
         var allowedOrigins = preferences.get("server.origins.allowed", "",
                 BuildMetadata.envPrefix() + "_SERVER_ORIGINS_ALLOWED", "server.origins.allowed");
         var sameOrigins = preferences.get("server.origins.same", uri.toString(),
                 BuildMetadata.envPrefix() + "_SERVER_ORIGINS_SAME", "server.origins.same");
-        var locale = preferences.getLocale("settings.locale", Locales.DEFAULT);
 
-        var identity = new LocalIdentity();
+        var accountStore = new InMemoryUserAccountStore();
+        var credentialStore = new InMemoryPasswordCredentialStore();
+        var tokenStore = new InMemoryAccessTokenStore();
+        var token = new AccessTokenService(tokenStore, Clock.systemUTC(), Duration.ofMinutes(20),
+                Duration.ofMinutes(20));
+        var cookie = new SessionCookie("JSESSIONID", true);
+        var session = new SessionManager(token, cookie, Duration.ofMinutes(20));
+        var verifier = new Argon2PasswordVerifier();
+        var hasher = new Argon2PasswordHasher();
+        var authenticator = new PasswordAuthenticator(accountStore, credentialStore, verifier);
+
+        var identity = new SessionCookieIdentity(token, cookie);
         var registry = new BackgroundWorkerRegistry();
         var engine = TemplateEngine.createPrecompiled(ContentType.Html);
         var security = new WebSecurity(sameOrigins);
         var cors = new WebCors(allowedOrigins);
         var writer = new ResponseWriter(security);
         var errorWriter = new ErrorResponseWriter(writer);
-        var messages = new Messages(Locales.resolve(locale));
-
-        var accountStore = new InMemoryUserAccountStore();
-        var credentialStore = new InMemoryPasswordCredentialStore();
-        var tokenStore = new InMemoryAccessTokenStore();
-        var token = new AccessTokenService(tokenStore, Clock.systemUTC(), Duration.ofMinutes(20),
-                Duration.ofMinutes(5));
-        var cookie = new SessionCookie("JAVA_SCAFFOLD_SESSIONID", true);
-        var session = new SessionManager(token, cookie, null);
-        var verifier = new Argon2PasswordVerifier();
-        var authenticator = new PasswordAuthenticator(accountStore, credentialStore, verifier);
-
-        checkExistingInstance(host, port, timeout, messages);
 
         var messageBootstrap = new MessageBootstrap(preferences);
         var generateGreetingMessageEndpoint = new GenerateGreetingMessageEndpoint(identity, security,
@@ -137,7 +123,7 @@ public final class Application {
                 messageBootstrap.buildReadAllMessageUseCase(), writer, registry);
 
         var loginEndpoint = new LoginEndpoint(security, writer, authenticator, session);
-        var logoutEndpoint = new LogoutEndpoint(security, writer);
+        var logoutEndpoint = new LogoutEndpoint(security, writer, session);
         var sessionEndpoint = new SessionEndpoint(security, writer);
         var loadDateFormatEndpoint = new LoadDateFormatEndpoint(preferences, writer);
         var loadDateTimeFormatEndpoint = new LoadDateTimeFormatEndpoint(preferences, writer);
@@ -206,15 +192,6 @@ public final class Application {
                         .build())))
                 .build()
                 .start();
-
-        DesktopTray.tryInstall(messages.get("application.tray.tooltip", BuildMetadata.name()),
-                messages.get("application.tray.menu.open"), messages.get("application.tray.menu.about"),
-                messages.get("application.tray.menu.copy"), messages.get("application.tray.menu.shutdown"),
-                messages.get("application.tray.dialog.title"),
-                messages.get("application.tray.dialog.message", BuildMetadata.name(), BuildMetadata.version()), uri,
-                () -> openBrowser(preferences, uri), this::shutdown);
-        System.out.println("Server is running on port " + port + "...");
-        Thread.ofVirtual().name("browser-launcher").start(() -> openBrowser(preferences, uri));
     }
 
     private void shutdown() {
@@ -224,65 +201,6 @@ public final class Application {
             LOGGER.log(Level.SEVERE, "Failed to stop web server", exception);
         } finally {
             System.exit(0);
-        }
-    }
-
-    private static void checkExistingInstance(String host, int port, int timeout, Messages messages) {
-        try (var probe = new Socket()) {
-            probe.connect(new InetSocketAddress(host, port), timeout);
-            showExistingInstanceWarning(messages);
-            System.exit(0);
-        } catch (SocketTimeoutException exception) {
-            LOGGER.log(Level.WARNING, "Existing instance did not respond within the configured timeout", exception);
-            showExistingInstanceWarning(messages);
-            System.exit(0);
-        } catch (IOException ignored) {
-            // Port is available.
-        }
-    }
-
-    private static void showExistingInstanceWarning(Messages messages) {
-        var message = messages.get("application.error.instance");
-        LOGGER.warning(message);
-        JOptionPane.showMessageDialog(null, message, messages.get("application.warning.title"),
-                JOptionPane.WARNING_MESSAGE);
-    }
-
-    private static void openBrowser(PreferencesStore preferences, URI uri) {
-        var messages = new Messages(Locales.resolve(preferences.getLocale("settings.locale", Locales.DEFAULT)));
-        try {
-            if (!sleep(500)) {
-                return;
-            }
-            var process = createOpenBrowserProcess(uri);
-            var exitCode = process.waitFor();
-            if (exitCode != 0) {
-                LOGGER.warning(messages.get("application.error.browser", exitCode, uri));
-            }
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, messages.get("application.error.browser", -1, uri), e);
-        }
-    }
-
-    private static Process createOpenBrowserProcess(URI uri) throws IOException {
-        var os = System.getProperty("os.name", "").toLowerCase(Locale.ROOT);
-        switch (os) {
-            case String s when s.contains("mac") || s.contains("darwin"):
-                return new ProcessBuilder("open", uri.toString()).start();
-            case String s when s.contains("win"):
-                return new ProcessBuilder("cmd.exe", "/C", "start", "", uri.toString()).start();
-            default:
-                return new ProcessBuilder("xdg-open", uri.toString()).start();
-        }
-    }
-
-    private static boolean sleep(long millis) {
-        try {
-            Thread.sleep(millis);
-            return true;
-        } catch (InterruptedException exception) {
-            Thread.currentThread().interrupt();
-            return false;
         }
     }
 }

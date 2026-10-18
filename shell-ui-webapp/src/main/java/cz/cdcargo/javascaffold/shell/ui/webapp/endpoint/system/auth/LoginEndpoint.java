@@ -12,7 +12,7 @@ import io.helidon.json.JsonObject;
 import io.helidon.webserver.http.ServerRequest;
 import io.helidon.webserver.http.ServerResponse;
 
-public class LoginEndpoint {
+public final class LoginEndpoint {
 
     private static final String FIELD_EMAIL = "email";
     private static final String FIELD_PASSWORD = "password";
