@@ -6,13 +6,22 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+
+import cz.cdcargo.javascaffold.shell.ui.webapp.platform.principal.Permission;
+import cz.cdcargo.javascaffold.shell.ui.webapp.platform.principal.Role;
 
 public final class InMemoryUserAccountStore implements UserAccountStore {
+
+    private static final String TEST_SUBJECT = "test";
+    private static final String TEST_EMAIL = "test@example.com";
+    private static final String TEST_FULLNAME = "Test User";
 
     private final Map<String, UserAccount> accounts;
 
     public InMemoryUserAccountStore() {
-        this(java.util.List.of());
+        this(java.util.List.of(new UserAccount(TEST_SUBJECT, TEST_EMAIL, TEST_FULLNAME, null, UserAccountStatus.ACTIVE,
+                Set.of(Role.ADMIN, Role.USER, Role.GUEST), Set.of(Permission.READ, Permission.WRITE))));
     }
 
     public InMemoryUserAccountStore(Collection<UserAccount> accounts) {
