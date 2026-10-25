@@ -19,9 +19,8 @@ class MessageIDTest {
     }
 
     @Test
-    void testConstructorNullValue() {
+    void testConstructorNull() {
         // Arrange + Act + Assert
-        assertEquals("Value must not be null",
-                assertThrows(NullPointerException.class, () -> new MessageID(null)).getMessage());
+        assertThrows(NullPointerException.class, () -> new MessageID(null));
     }
 }

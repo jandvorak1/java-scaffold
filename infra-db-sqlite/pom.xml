@@ -15,9 +15,9 @@
     <packaging>jar</packaging>
     <name>Java Scaffold Infra DB SQLite</name>
 
-    <properties>       
-        <sqlite.version>3.53.0.0</sqlite.version> 
-        <hikari.version>7.0.2</hikari.version> 
+    <properties>
+        <sqlite.version>3.53.0.0</sqlite.version>
+        <hikari.version>7.0.2</hikari.version>
         <slf4j.version>2.0.17</slf4j.version>
         <log4j.version>2.25.4</log4j.version>
         <junit.version>6.0.1</junit.version>
@@ -42,7 +42,7 @@
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
-       
+
         <dependency>
             <groupId>org.xerial</groupId>
             <artifactId>sqlite-jdbc</artifactId>
@@ -81,6 +81,12 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

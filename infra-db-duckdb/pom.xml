@@ -15,9 +15,9 @@
     <packaging>jar</packaging>
     <name>Java Scaffold Infra DB DuckDB</name>
 
-    <properties>       
+    <properties>
         <duckdb.version>1.5.6.0</duckdb.version>
-        <hikari.version>7.0.2</hikari.version> 
+        <hikari.version>7.0.2</hikari.version>
         <slf4j.version>2.0.17</slf4j.version>
         <log4j.version>2.25.4</log4j.version>
         <junit.version>6.0.1</junit.version>
@@ -50,7 +50,7 @@
             <scope>compile</scope>
         </dependency>
 
-          <dependency>
+        <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
             <version>${hikari.version}</version>
@@ -83,6 +83,12 @@
             <artifactId>junit-jupiter-engine</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -112,5 +118,5 @@
                 </configuration>
             </plugin>
         </plugins>
-    </build>       
+    </build>
 </project>

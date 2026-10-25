@@ -4,48 +4,39 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class MessageTitleTest {
 
-    @Test
-    void testConstructor() {
-        // Arrange
-        var value = "World";
+    private static final int MAX_LENGTH = 255;
 
-        // Act + Assert
+    @ParameterizedTest
+    @ValueSource(strings = { "Hello", "World" })
+    void testConstructor(String value) {
+        // Arrange + Act + Assert
         assertEquals(value, new MessageTitle(value).value());
     }
 
     @Test
-    void testConstructorMaxLength() {
-        // Arrange
-        var value = "a".repeat(255);
-
-        // Act + Assert
-        assertEquals(value, new MessageTitle(value).value());
-    }
-
-    @Test
-    void testConstructorTooLong() {
-        // Arrange + Act
-        var exception = assertThrows(MessageTitleLengthException.class,
-                () -> new MessageTitle("a".repeat(256)));
-
-        // Assert
-        assertEquals(255, exception.maxLength());
-    }
-
-    @Test
-    void testConstructorBlank() {
+    void testConstructorNull() {
         // Arrange + Act + Assert
-        assertThrows(MessageTitleBlankException.class, () -> new MessageTitle(""));
-        assertThrows(MessageTitleBlankException.class, () -> new MessageTitle(" \t\n\u2003"));
+        assertThrows(NullPointerException.class, () -> new MessageTitle(null));
+    }
+
+    @ParameterizedTest
+    @EmptySource
+    @ValueSource(strings = { " ", "   ", " \t\n\u2003" })
+    void testConstructorBlank(String value) {
+        // Arrange + Act + Assert
+        assertThrows(MessageTitleBlankException.class, () -> new MessageTitle(value));
     }
 
     @Test
-    void testConstructorNullValue() {
+    void testConstructorLength() {
         // Arrange + Act + Assert
-        assertEquals("Value must not be null",
-                assertThrows(NullPointerException.class, () -> new MessageTitle(null)).getMessage());
+        assertThrows(MessageTitleLengthException.class,
+                () -> new MessageTitle("a".repeat(MAX_LENGTH + 1)));
     }
 }

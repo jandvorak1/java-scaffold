@@ -60,6 +60,12 @@
             <artifactId>junit-jupiter-engine</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -79,8 +85,8 @@
                         <manifestEntries>
                             <Automatic-Module-Name>cz.cdcargo.javascaffold.core.platform</Automatic-Module-Name>
                             <Implementation-Title>${project.artifactId}</Implementation-Title>
-                            <Implementation-Version>${project.version}</Implementation-Version>    
-                            <Implementation-Vendor>ČD Cargo, a.s.</Implementation-Vendor>                                   
+                            <Implementation-Version>${project.version}</Implementation-Version>
+                            <Implementation-Vendor>ČD Cargo, a.s.</Implementation-Vendor>
                             <Specification-Title>Java Scaffold</Specification-Title>
                             <Specification-Version>${project.version}</Specification-Version>
                             <Specification-Vendor>ČD Cargo, a.s.</Specification-Vendor>
@@ -88,6 +94,6 @@
                     </archive>
                 </configuration>
             </plugin>
-        </plugins>                
+        </plugins>
     </build>
 </project>
