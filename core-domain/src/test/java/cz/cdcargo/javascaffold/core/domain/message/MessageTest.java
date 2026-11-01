@@ -52,6 +52,7 @@ class MessageTest {
 
     private static Stream<Arguments> getMessageComponents() {
         var components = Message.class.getRecordComponents();
-        return IntStream.range(0, components.length).mapToObj(i -> Arguments.of(components[i].getName(), i));
+        return IntStream.range(0, components.length).filter(i -> !components[i].getType().isPrimitive())
+                .mapToObj(i -> Arguments.of(components[i].getName(), i));
     }
 }
