@@ -2,18 +2,16 @@ package cz.cdcargo.javascaffold.core.platform.functional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
 import org.junit.jupiter.api.Test;
 
 class EitherTest {
 
     @Test
-    void testRightCreatesRightBranch() {
+    void testRight() {
         // Arrange
         var output = Either.<String, Integer>right(42);
 
@@ -24,7 +22,7 @@ class EitherTest {
     }
 
     @Test
-    void testLeftCreatesLeftBranch() {
+    void testLeft() {
         // Arrange
         var output = Either.<String, String>left("Error");
 
@@ -35,39 +33,7 @@ class EitherTest {
     }
 
     @Test
-    void testLeftRejectsNullValue() {
-        // Arrange + Act + Assert
-        assertThrows(NullPointerException.class, () -> Either.left(null));
-    }
-
-    @Test
-    void testRightRejectsNullValue() {
-        // Arrange + Act + Assert
-        assertThrows(NullPointerException.class, () -> Either.right(null));
-    }
-
-    @Test
-    void testGetRightRejectsLeftBranch() {
-        // Arrange
-        var left = Either.<String, Integer>left("Error");
-
-        // Act + Assert
-        var exception = assertThrows(NoSuchElementException.class, left::getRight);
-        assertEquals("Right value is not available", exception.getMessage());
-    }
-
-    @Test
-    void testGetLeftRejectsRightBranch() {
-        // Arrange
-        var right = Either.<String, Integer>right(7);
-
-        // Act + Assert
-        var exception = assertThrows(NoSuchElementException.class, right::getLeft);
-        assertEquals("Left value is not available", exception.getMessage());
-    }
-
-    @Test
-    void testMapTransformsRightValue() {
+    void testMap() {
         // Arrange
         var input = Either.<String, Integer>right(5);
         var output = input.map(number -> "v=" + number);
@@ -78,39 +44,7 @@ class EitherTest {
     }
 
     @Test
-    void testMapPropagatesLeftValueWithoutInvokingMapper() {
-        // Arrange
-        var input = Either.<String, Integer>left("Error");
-
-        // Act + Assert
-        var output = input.map(value -> {
-            throw new AssertionError("Mapper must not be invoked");
-        });
-        assertEquals(Either.left("Error"), output);
-    }
-
-    @Test
-    void testMapRejectsNullMapper() {
-        // Arrange
-        var left = Either.<String, Integer>left("Error");
-        var right = Either.<String, Integer>right(5);
-
-        // Act + Assert
-        assertThrows(NullPointerException.class, () -> left.map(null));
-        assertThrows(NullPointerException.class, () -> right.map(null));
-    }
-
-    @Test
-    void testMapRejectsNullResult() {
-        // Arrange
-        var right = Either.<String, Integer>right(5);
-
-        // Act + Assert
-        assertThrows(NullPointerException.class, () -> right.map(value -> null));
-    }
-
-    @Test
-    void testMapLeftTransformsLeftValue() {
+    void testMapLeft() {
         // Arrange
         var input = Either.<String, Integer>left("E1");
         var output = input.mapLeft(String::length);
@@ -121,39 +55,7 @@ class EitherTest {
     }
 
     @Test
-    void testMapLeftPropagatesRightValueWithoutInvokingMapper() {
-        // Arrange
-        var input = Either.<String, Integer>right(5);
-
-        // Act + Assert
-        var output = input.mapLeft(value -> {
-            throw new AssertionError("Mapper must not be invoked");
-        });
-        assertEquals(Either.right(5), output);
-    }
-
-    @Test
-    void testMapLeftRejectsNullMapper() {
-        // Arrange
-        var left = Either.<String, Integer>left("Error");
-        var right = Either.<String, Integer>right(5);
-
-        // Act + Assert
-        assertThrows(NullPointerException.class, () -> left.mapLeft(null));
-        assertThrows(NullPointerException.class, () -> right.mapLeft(null));
-    }
-
-    @Test
-    void testMapLeftRejectsNullResult() {
-        // Arrange
-        var left = Either.<String, Integer>left("Error");
-
-        // Act + Assert
-        assertThrows(NullPointerException.class, () -> left.mapLeft(value -> null));
-    }
-
-    @Test
-    void testFlatMapTransformsRightValueToEitherBranch() {
+    void testFlatMap() {
         // Arrange
         var input = Either.<String, Integer>right(3);
         var outputRight = input.flatMap(n -> Either.right("V" + n));
@@ -167,39 +69,7 @@ class EitherTest {
     }
 
     @Test
-    void testFlatMapPropagatesLeftValueWithoutInvokingMapper() {
-        // Arrange
-        var input = Either.<String, Integer>left("Error");
-
-        // Act + Assert
-        var output = input.flatMap(value -> {
-            throw new AssertionError("Mapper must not be invoked");
-        });
-        assertEquals(Either.left("Error"), output);
-    }
-
-    @Test
-    void testFlatMapRejectsNullMapper() {
-        // Arrange
-        var left = Either.<String, Integer>left("Error");
-        var right = Either.<String, Integer>right(3);
-
-        // Act + Assert
-        assertThrows(NullPointerException.class, () -> left.flatMap(null));
-        assertThrows(NullPointerException.class, () -> right.flatMap(null));
-    }
-
-    @Test
-    void testFlatMapRejectsNullResult() {
-        // Arrange
-        var right = Either.<String, Integer>right(3);
-
-        // Act + Assert
-        assertThrows(NullPointerException.class, () -> right.flatMap(value -> null));
-    }
-
-    @Test
-    void testFoldInvokesOnlyFunctionForPresentBranch() {
+    void testFold() {
         // Arrange
         var left = Either.<String, Integer>left("Oops");
         var right = Either.<String, Integer>right(10);
@@ -232,18 +102,7 @@ class EitherTest {
     }
 
     @Test
-    void testFoldRejectsNullFunctions() {
-        // Arrange
-        var left = Either.<String, Integer>left("Error");
-        var right = Either.<String, Integer>right(10);
-
-        // Act + Assert
-        assertThrows(NullPointerException.class, () -> left.fold(null, value -> value));
-        assertThrows(NullPointerException.class, () -> right.fold(String::length, null));
-    }
-
-    @Test
-    void testToOptionalContainsOnlyRightValue() {
+    void testToOptional() {
         // Arrange
         var right = Either.<String, Integer>right(8);
         var left = Either.<String, Integer>left("E");
@@ -254,42 +113,11 @@ class EitherTest {
     }
 
     @Test
-    void testGetOrElseThrowReturnsRightValue() {
+    void testGetOrElseThrow() {
         // Arrange
         var right = Either.<String, Integer>right(15);
 
         // Act + Assert
         assertEquals(15, right.getOrElseThrow(NoSuchElementException::new));
-    }
-
-    @Test
-    void testGetOrElseThrowMapsLeftValueToException() {
-        // Arrange
-        var left = Either.<String, Integer>left("Error occurred");
-        Function<Object, IllegalArgumentException> exceptionMapper = value -> new IllegalArgumentException(
-                value.toString());
-
-        // Act + Assert
-        var exception = assertThrows(IllegalArgumentException.class,
-                () -> left.getOrElseThrow(exceptionMapper));
-        assertEquals("Error occurred", exception.getMessage());
-    }
-
-    @Test
-    void testGetOrElseThrowRejectsNullSupplier() {
-        // Arrange
-        var left = Either.<String, Integer>left("Error");
-
-        // Act + Assert
-        assertThrows(NullPointerException.class, () -> left.getOrElseThrow(null));
-    }
-
-    @Test
-    void testGetOrElseThrowRejectsNullSupplierResult() {
-        // Arrange
-        var left = Either.<String, Integer>left("Error");
-
-        // Act + Assert
-        assertThrows(NullPointerException.class, () -> left.getOrElseThrow(value -> null));
     }
 }

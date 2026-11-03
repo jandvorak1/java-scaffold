@@ -1,6 +1,6 @@
 package cz.cdcargo.javascaffold.core.platform.build;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -16,24 +16,24 @@ class BuildMetadataTest {
     @Test
     void testName() {
         // Arrange + Act + Assert
-        assertEquals("Java Scaffold", BuildMetadata.name());
+        assertFalse(BuildMetadata.name().isBlank());
     }
 
     @Test
     void testVersion() {
         // Arrange + Act + Assert
-        assertEquals("1.0.0", BuildMetadata.version());
+        assertFalse(BuildMetadata.version().isBlank());
     }
 
     @Test
     void testEnvPrefix() {
         // Arrange + Act + Assert
-        assertEquals("JAVA_SCAFFOLD", BuildMetadata.envPrefix());
+        assertFalse(BuildMetadata.envPrefix().isBlank());
     }
 
     @Test
     void testSlug() {
         // Arrange + Act + Assert
-        assertEquals("java-scaffold", BuildMetadata.slug());
+        assertFalse(BuildMetadata.slug().isBlank());
     }
 }

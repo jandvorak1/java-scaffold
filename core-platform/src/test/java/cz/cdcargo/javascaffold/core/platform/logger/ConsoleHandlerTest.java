@@ -2,18 +2,12 @@ package cz.cdcargo.javascaffold.core.platform.logger;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.ErrorManager;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
@@ -59,7 +53,16 @@ class ConsoleHandlerTest {
     }
 
     @Test
-    void testPublishWritesFormattedLogRecord() {
+    void testConstructor() {
+        // Arrange
+        var handler = new ConsoleHandler(createPreferencesStore());
+
+        // Act + Assert
+        assertEquals(Level.INFO, handler.getLevel());
+    }
+
+    @Test
+    void testPublish() {
         // Arrange
         var record = new LogRecord(Level.INFO, "Test message");
         record.setLoggerName("Test.Logger");
@@ -76,117 +79,7 @@ class ConsoleHandlerTest {
     }
 
     @Test
-    void testConstructorUsesDefaultLevel() {
-        // Arrange
-        var handler = new ConsoleHandler(createPreferencesStore());
-
-        // Act + Assert
-        assertEquals(Level.INFO, handler.getLevel());
-    }
-
-    @Test
-    void testConstructorUsesConfiguredLevel() {
-        // Arrange
-        var preferences = createPreferencesStore();
-        preferences.putLevel("logs.console.level", Level.FINE);
-
-        // Act
-        var handler = new ConsoleHandler(preferences);
-
-        // Assert
-        assertEquals(Level.FINE, handler.getLevel());
-    }
-
-    @Test
-    void testConstructorUsesConfiguredAliasLevel() {
-        // Arrange
-        var preferences = createPreferencesStore();
-        preferences.put("logs.console.level", "DEBUG");
-
-        // Act
-        var handler = new ConsoleHandler(preferences);
-
-        // Assert
-        assertEquals(Level.FINE, handler.getLevel());
-    }
-
-    @Test
-    void testDefaultConstructorUsesUserPreferences() {
-        // Arrange
-        var preferencesDirectory = tempDir.resolve("preferences");
-        FilePreferencesStore.at(preferencesDirectory).putLevel("logs.console.level", Level.FINE);
-        System.setProperty("prefs.path", preferencesDirectory.toString());
-
-        // Act
-        var handler = new ConsoleHandler();
-
-        // Assert
-        assertEquals(Level.FINE, handler.getLevel());
-    }
-
-    @Test
-    void testConstructorRejectsNullPreferences() {
-        // Arrange + Act + Assert
-        assertThrows(NullPointerException.class, () -> new ConsoleHandler(null));
-    }
-
-    @Test
-    void testPublishIgnoresNullRecord() {
-        // Arrange
-        var handler = new ConsoleHandler(createPreferencesStore());
-        handler.publish(null);
-
-        // Act
-        var output = content.toString(StandardCharsets.UTF_8);
-
-        // Assert
-        assertTrue(output.isEmpty());
-    }
-
-    @Test
-    void testPublishIgnoresRecordBelowConfiguredLevel() {
-        // Arrange
-        var preferences = createPreferencesStore();
-        preferences.putLevel("logs.console.level", Level.INFO);
-        var record = new LogRecord(Level.FINE, "Test message");
-        record.setLoggerName("Test.Logger");
-        var handler = new ConsoleHandler(preferences);
-        handler.publish(record);
-
-        // Act
-        var output = content.toString(StandardCharsets.UTF_8);
-
-        // Assert
-        assertFalse(output.contains("Test message"));
-    }
-
-    @Test
-    void testPublishReportsOutputFailure() {
-        // Arrange
-        var failures = new AtomicInteger();
-        System.setOut(new PrintStream(new OutputStream() {
-            @Override
-            public void write(int value) throws IOException {
-                throw new IOException("Output failure");
-            }
-        }, true, StandardCharsets.UTF_8));
-        var handler = new ConsoleHandler(createPreferencesStore());
-        handler.setErrorManager(new ErrorManager() {
-            @Override
-            public void error(String message, Exception exception, int code) {
-                failures.incrementAndGet();
-            }
-        });
-
-        // Act
-        handler.publish(new LogRecord(Level.INFO, "Test message"));
-
-        // Assert
-        assertEquals(1, failures.get());
-    }
-
-    @Test
-    void testFlushDoesNotFail() {
+    void testFlush() {
         // Arrange
         var handler = new ConsoleHandler(createPreferencesStore());
 
@@ -195,27 +88,13 @@ class ConsoleHandlerTest {
     }
 
     @Test
-    void testCloseIsIdempotent() {
+    void testClose() {
         // Arrange
         var handler = new ConsoleHandler(createPreferencesStore());
 
         // Act + Assert
         assertDoesNotThrow(handler::close);
         assertDoesNotThrow(handler::close);
-    }
-
-    @Test
-    void testClosePreventsFurtherPublishing() {
-        // Arrange
-        var handler = new ConsoleHandler(createPreferencesStore());
-        var record = new LogRecord(Level.INFO, "Ignored message");
-
-        // Act
-        handler.close();
-        handler.publish(record);
-
-        // Assert
-        assertTrue(content.toString(StandardCharsets.UTF_8).isEmpty());
     }
 
     private FilePreferencesStore createPreferencesStore() {

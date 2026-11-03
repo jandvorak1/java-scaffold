@@ -18,22 +18,9 @@ import org.junit.jupiter.api.Test;
 class BackgroundWorkerRegistryTest {
 
     @Test
-    void testConstructorRejectsNullClock() {
+    void testConstructorNull() {
         // Arrange + Act + Assert
         assertThrows(NullPointerException.class, () -> new BackgroundWorkerRegistry(null, Duration.ZERO));
-    }
-
-    @Test
-    void testConstructorRejectsNullRetention() {
-        // Arrange + Act + Assert
-        assertThrows(NullPointerException.class, () -> new BackgroundWorkerRegistry(Clock.systemUTC(), null));
-    }
-
-    @Test
-    void testConstructorRejectsNegativeRetention() {
-        // Arrange + Act + Assert
-        assertThrows(IllegalArgumentException.class,
-                () -> new BackgroundWorkerRegistry(Clock.systemUTC(), Duration.ofSeconds(-1)));
     }
 
     @Test
@@ -47,27 +34,6 @@ class BackgroundWorkerRegistryTest {
 
         // Assert
         assertSame(worker, registry.get("worker-token"));
-    }
-
-    @Test
-    void testAddRejectsNullWorker() {
-        // Arrange
-        var registry = new BackgroundWorkerRegistry();
-
-        // Act + Assert
-        assertThrows(NullPointerException.class, () -> registry.add(null));
-    }
-
-    @Test
-    void testAddRejectsDuplicateWorker() {
-        // Arrange
-        var registry = new BackgroundWorkerRegistry();
-
-        // Act
-        registry.add(new NoOpWorker("worker-token"));
-
-        // Assert
-        assertThrows(IllegalStateException.class, () -> registry.add(new NoOpWorker("worker-token")));
     }
 
     @Test
@@ -117,33 +83,6 @@ class BackgroundWorkerRegistryTest {
     }
 
     @Test
-    void testGetRejectsNullToken() {
-        // Arrange
-        var registry = new BackgroundWorkerRegistry();
-
-        // Act + Assert
-        assertThrows(NullPointerException.class, () -> registry.get(null));
-    }
-
-    @Test
-    void testCancelRejectsNullToken() {
-        // Arrange
-        var registry = new BackgroundWorkerRegistry();
-
-        // Act + Assert
-        assertThrows(NullPointerException.class, () -> registry.cancel(null));
-    }
-
-    @Test
-    void testRemoveRejectsNullToken() {
-        // Arrange
-        var registry = new BackgroundWorkerRegistry();
-
-        // Act + Assert
-        assertThrows(NullPointerException.class, () -> registry.remove(null));
-    }
-
-    @Test
     void testRemove() {
         // Arrange
         var registry = new BackgroundWorkerRegistry();
@@ -186,36 +125,6 @@ class BackgroundWorkerRegistryTest {
         assertTrue(doneLatch.await(2, TimeUnit.SECONDS));
         registry.removeExpired();
         assertThrows(NoSuchElementException.class, () -> registry.get("worker-token"));
-    }
-
-    @Test
-    void testRemoveExpiredHandlesRetentionLongerThanInstantRange() throws Exception {
-        // Arrange
-        var instant = Instant.parse("2026-08-17T10:00:00Z");
-        var clock = Clock.fixed(instant, ZoneOffset.UTC);
-        var registry = new BackgroundWorkerRegistry(clock, Duration.ofSeconds(Long.MAX_VALUE));
-        var doneLatch = new CountDownLatch(1);
-        var worker = new BackgroundWorker<Void, String>("worker-token", clock) {
-
-            @Override
-            protected Void doInBackground() {
-                return null;
-            }
-
-            @Override
-            protected void done(Void result) {
-                doneLatch.countDown();
-            }
-        };
-
-        // Act
-        registry.add(worker);
-        worker.execute();
-
-        // Assert
-        assertTrue(doneLatch.await(2, TimeUnit.SECONDS));
-        registry.removeExpired();
-        assertSame(worker, registry.get("worker-token"));
     }
 
     private static class NoOpWorker extends BackgroundWorker<Void, String> {

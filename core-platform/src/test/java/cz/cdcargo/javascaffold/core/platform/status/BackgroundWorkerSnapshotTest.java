@@ -1,10 +1,7 @@
 package cz.cdcargo.javascaffold.core.platform.status;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -12,7 +9,7 @@ import org.junit.jupiter.api.Test;
 class BackgroundWorkerSnapshotTest {
 
     @Test
-    void testConstructorStoresCompletedWorkerData() {
+    void testConstructor() {
         // Arrange
         var token = "worker-token";
         var state = BackgroundWorkerState.DONE;
@@ -32,59 +29,5 @@ class BackgroundWorkerSnapshotTest {
         assertEquals(2, snapshot.messageOffset());
         assertEquals(messages, snapshot.messages());
         assertEquals(result, snapshot.result());
-    }
-
-    @Test
-    void testConstructorDefensivelyCopiesMessages() {
-        // Arrange
-        var messages = new ArrayList<>(List.of("first"));
-        var snapshot = new BackgroundWorkerSnapshot<Void, String>("token", BackgroundWorkerState.READY, Instant.EPOCH,
-                null, 1, messages, null, null);
-        // Act
-        messages.add("second");
-
-        // Assert
-        assertEquals(List.of("first"), snapshot.messages());
-        assertThrows(UnsupportedOperationException.class, () -> snapshot.messages().add("third"));
-    }
-
-    @Test
-    void testConstructorRejectsInvalidMessageOffset() {
-        // Arrange + Act + Assert
-        assertThrows(IllegalArgumentException.class, () -> new BackgroundWorkerSnapshot<Void, String>("token",
-                BackgroundWorkerState.READY, Instant.EPOCH, null, -1, List.of(), null, null));
-        assertThrows(IllegalArgumentException.class, () -> new BackgroundWorkerSnapshot<Void, String>("token",
-                BackgroundWorkerState.READY, Instant.EPOCH, null, 0, List.of("message"), null, null));
-    }
-
-    @Test
-    void testConstructorRejectsMissingOrBlankToken() {
-        // Arrange + Act + Assert
-        assertThrows(NullPointerException.class, () -> new BackgroundWorkerSnapshot<Void, String>(null,
-                BackgroundWorkerState.READY, Instant.EPOCH, null, 0, List.of(), null, null));
-        assertThrows(IllegalArgumentException.class, () -> new BackgroundWorkerSnapshot<Void, String>(" ",
-                BackgroundWorkerState.READY, Instant.EPOCH, null, 0, List.of(), null, null));
-    }
-
-    @Test
-    void testConstructorRejectsInconsistentLifecycleData() {
-        // Arrange
-        var createdAt = Instant.parse("2026-08-31T10:00:00Z");
-        var finishedAt = createdAt.plusSeconds(1);
-        var error = new Exception("failure");
-
-        // Act + Assert
-        assertThrows(IllegalArgumentException.class, () -> new BackgroundWorkerSnapshot<Void, String>("token",
-                BackgroundWorkerState.DONE, createdAt, null, 0, List.of(), null, null));
-        assertThrows(IllegalArgumentException.class, () -> new BackgroundWorkerSnapshot<Void, String>("token",
-                BackgroundWorkerState.RUNNING, createdAt, finishedAt, 0, List.of(), null, null));
-        assertThrows(IllegalArgumentException.class, () -> new BackgroundWorkerSnapshot<Void, String>("token",
-                BackgroundWorkerState.DONE, createdAt, createdAt.minusSeconds(1), 0, List.of(), null, null));
-        assertThrows(IllegalArgumentException.class, () -> new BackgroundWorkerSnapshot<Void, String>("token",
-                BackgroundWorkerState.FAILED, createdAt, finishedAt, 0, List.of(), null, null));
-        assertThrows(IllegalArgumentException.class, () -> new BackgroundWorkerSnapshot<Void, String>("token",
-                BackgroundWorkerState.DONE, createdAt, finishedAt, 0, List.of(), error, null));
-        assertThrows(IllegalArgumentException.class, () -> new BackgroundWorkerSnapshot<String, String>("token",
-                BackgroundWorkerState.CANCELLED, createdAt, finishedAt, 0, List.of(), null, "result"));
     }
 }

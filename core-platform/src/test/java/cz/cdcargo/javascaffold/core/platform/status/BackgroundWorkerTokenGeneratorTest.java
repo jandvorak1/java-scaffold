@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 class BackgroundWorkerTokenGeneratorTest {
 
     @Test
-    void testGenerateReturnsDistinctUrlSafeTokens() {
+    void testGenerate() {
         // Arrange
         var token = BackgroundWorkerTokenGenerator.generate();
         var anotherToken = BackgroundWorkerTokenGenerator.generate();

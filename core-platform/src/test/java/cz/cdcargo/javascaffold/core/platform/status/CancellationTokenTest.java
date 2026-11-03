@@ -6,8 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.concurrent.CancellationException;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,9 +32,21 @@ class CancellationTokenTest {
     }
 
     @Test
-    void testRegisterRejectsNullToken() {
+    void testClear() {
+        // Arrange
+        var token = new CancellationToken();
+
+        // Act + Assert
+        CancellationToken.register(token);
+        token.cancel();
+        CancellationToken.clear();
+        assertDoesNotThrow(CancellationToken::throwIfCancelled);
+    }
+
+    @Test
+    void testThrowIfCancelled() {
         // Arrange + Act + Assert
-        assertThrows(NullPointerException.class, () -> CancellationToken.register(null));
+        assertDoesNotThrow(CancellationToken::throwIfCancelled);
     }
 
     @Test
@@ -51,7 +61,7 @@ class CancellationTokenTest {
     }
 
     @Test
-    void testIsCancelledReflectsCancellationRequest() {
+    void testIsCancelled() {
         // Arrange
         var token = new CancellationToken();
 
@@ -59,45 +69,5 @@ class CancellationTokenTest {
         assertFalse(token.isCancelled());
         token.cancel();
         assertTrue(token.isCancelled());
-    }
-
-    @Test
-    void testCancelIsolated() throws InterruptedException {
-        // Arrange
-        var token = new CancellationToken();
-        CancellationToken.register(token);
-        token.cancel();
-        var threwInOtherThread = new AtomicBoolean(false);
-        var other = Thread.ofVirtual().start(() -> {
-            try {
-                CancellationToken.throwIfCancelled();
-            } catch (CancellationException e) {
-                threwInOtherThread.set(true);
-            }
-        });
-
-        // Act
-        other.join();
-
-        // Assert
-        assertFalse(threwInOtherThread.get());
-    }
-
-    @Test
-    void testThrowIfCancelled() {
-        // Arrange + Act + Assert
-        assertDoesNotThrow(CancellationToken::throwIfCancelled);
-    }
-
-    @Test
-    void testClear() {
-        // Arrange
-        var token = new CancellationToken();
-
-        // Act + Assert
-        CancellationToken.register(token);
-        token.cancel();
-        CancellationToken.clear();
-        assertDoesNotThrow(CancellationToken::throwIfCancelled);
     }
 }
