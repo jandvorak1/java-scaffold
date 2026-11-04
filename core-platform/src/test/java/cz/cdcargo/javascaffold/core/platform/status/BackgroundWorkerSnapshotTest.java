@@ -1,9 +1,10 @@
 package cz.cdcargo.javascaffold.core.platform.status;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.time.Instant;
 import java.util.List;
-
 import org.junit.jupiter.api.Test;
 
 class BackgroundWorkerSnapshotTest {
@@ -29,5 +30,13 @@ class BackgroundWorkerSnapshotTest {
         assertEquals(2, snapshot.messageOffset());
         assertEquals(messages, snapshot.messages());
         assertEquals(result, snapshot.result());
+    }
+
+    @Test
+    void testConstructorNull() {
+        // Arrange + Act + Assert
+        assertThrows(NullPointerException.class, () -> {
+            new BackgroundWorkerSnapshot<>(null, null, null, null, 2, null, null, null);
+        });
     }
 }

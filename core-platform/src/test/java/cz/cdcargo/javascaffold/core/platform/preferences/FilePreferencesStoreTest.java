@@ -1,7 +1,9 @@
 package cz.cdcargo.javascaffold.core.platform.preferences;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Path;
@@ -48,6 +50,19 @@ class FilePreferencesStoreTest {
                 System.setProperty(property, value);
             }
         });
+    }
+
+    @Test
+    void testConstructor() {
+        // Arrange + Act + Assert
+        var store = assertDoesNotThrow(() -> FilePreferencesStore.at(tempDir.resolve("preferences")));
+        assertTrue(store != null);
+    }
+
+    @Test
+    void testConstructorNull() {
+        // Arrange + Act + Assert
+        assertThrows(NullPointerException.class, () -> FilePreferencesStore.at(null));
     }
 
     @Test

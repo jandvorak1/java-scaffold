@@ -8,6 +8,15 @@ import org.junit.jupiter.api.Test;
 class GenerateGreetingMessageServiceTest {
 
     @Test
+    void testConstructor() {
+        // Arrange
+        var service = new GenerateGreetingMessageService();
+
+        // Act + Assert
+        assertEquals("Hello World!", service.execute("World").title().value());
+    }
+
+    @Test
     void testConstructorNull() {
         // Arrange + Act + Assert
         assertThrows(NullPointerException.class, () -> new GenerateGreetingMessageService(null));

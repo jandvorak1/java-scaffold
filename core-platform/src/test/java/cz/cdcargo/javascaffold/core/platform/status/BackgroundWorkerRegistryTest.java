@@ -1,5 +1,6 @@
 package cz.cdcargo.javascaffold.core.platform.status;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -16,6 +17,12 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 
 class BackgroundWorkerRegistryTest {
+
+    @Test
+    void testConstructor() {
+        // Arrange + Act + Assert
+        assertDoesNotThrow(() -> new BackgroundWorkerRegistry());
+    }
 
     @Test
     void testConstructorNull() {

@@ -15,6 +15,15 @@ import cz.cdcargo.javascaffold.core.domain.message.MessageTitle;
 class ReadAllMessageServiceTest {
 
     @Test
+    void testConstructor() {
+        // Arrange
+        var service = new ReadAllMessageService(() -> List.of());
+
+        // Act + Assert
+        assertEquals(List.of(), service.execute());
+    }
+
+    @Test
     void testConstructorNull() {
         // Arrange + Act + Assert
         assertThrows(NullPointerException.class, () -> new ReadAllMessageService(null));

@@ -2,6 +2,7 @@ package cz.cdcargo.javascaffold.core.platform.logger;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
@@ -52,6 +53,12 @@ class FileHandlerTest {
 
         // Assert
         assertEquals(Level.INFO, handler.getLevel());
+    }
+
+    @Test
+    void testConstructorNull() {
+        // Arrange + Act + Assert
+        assertThrows(NullPointerException.class, () -> new FileHandler(null));
     }
 
     @Test

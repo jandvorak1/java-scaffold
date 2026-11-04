@@ -2,7 +2,9 @@ package cz.cdcargo.javascaffold.core.platform.status;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -12,6 +14,19 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
 
 class BackgroundWorkerTest {
+
+    @Test
+    void testConstructor() {
+        // Arrange + Act + Assert
+        var worker = assertDoesNotThrow(() -> new NoOpWorker("test-token"));
+        assertNotNull(worker);
+    }
+
+    @Test
+    void testConstructorNull() {
+        // Arrange + Act + Assert
+        assertThrows(NullPointerException.class, () -> new NoOpWorker(null));
+    }
 
     @Test
     void testExecute() throws Exception {
